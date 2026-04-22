@@ -3,7 +3,7 @@ name: CI Pipeline
 on:
   push:
     branches:
-      - setup-task
+      - main
   pull_request:
     branches:
       - main
