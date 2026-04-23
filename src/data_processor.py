@@ -61,7 +61,7 @@ class Country_Eda:
         coolest=monthly_df.loc[monthly_df['T2M'].idxmin()]
 
 
-        fig, ax = plt.subplots(figsize=(14, 7))
+        fig, ax = plt.subplots(figsize=(10, 6))
         print('_______Plotting_______')
     
         sns.lineplot(data=monthly_df, x='Date', y='T2M', ax=ax, color='#2c7fb8', linewidth=2.5)
@@ -92,16 +92,97 @@ class Country_Eda:
         print('____Plotted successfully____')
         print(f'The coolest month is - {coolest }\n The warmest month is - {warmest}')
 
+    def monthly_total_precipitation(self):
+        
+        monthly=self.df.groupby('MONTH')['PRECTOTCORR'].sum().reset_index()
+        month_map = {
+            1: 'Jan', 2: 'Feb', 3: 'Mar', 4: 'Apr', 5: 'May', 6: 'Jun',
+            7: 'Jul', 8: 'Aug', 9: 'Sep', 10: 'Oct', 11: 'Nov', 12: 'Dec'
+        }
+        monthly['Month_Name'] = monthly['MONTH'].map(month_map)
+
+        peak_rainy_row=monthly['PRECTOTCORR'].idxmax()
+        peak_value = monthly.loc[peak_rainy_row, 'PRECTOTCORR']
+        peak_month = monthly.loc[peak_rainy_row, 'Month_Name']
+        
+        fig, ax= plt.subplots(figsize=(14,7))
+        sns.barplot(data=monthly, x='Month_Name', y='PRECTOTCORR', ax=ax, palette='Blues_d')
+        ax.annotate(f'Peak: {peak_month}\n{peak_value:.1f} mm', 
+                    xy=(peak_rainy_row, peak_value), 
+                    xytext=(0, 30), 
+                    textcoords='offset points',
+                    ha='center', va='bottom',
+                    fontweight='bold', color='black',
+                    arrowprops=dict(arrowstyle='->', color='red', lw=2))
+
+        plt.title(f'Total Monthly Precipitation - {self.name.capitalize()}')
+        plt.ylabel('Total Precipitation (mm)/day')
+        plt.ylim(0, peak_value * 1.2)
+        plt.show()
+
+    def correlation_and_relationship(self):
+        fig, ax= plt.subplots(figsize=(10,6))
+        sns.heatmap(data=self.df.corr(numeric_only=True), annot=True, cmap='coolwarm', ax=ax)
+        plt.show()
+        print('_____scatter plot_____')
+        fig, ax= plt.subplots(figsize=(10,6))
+        sns.scatterplot(data=self.df, x='T2M', y='RH2M', ax=ax)
+        plt.title('Mean daily air temperature at 2 meters vs Relative humidity at 2 meters ')
+        plt.show()
+        print('_____scatter plot 2_____')
+        fig, ax= plt.subplots(figsize=(10,6))
+        sns.scatterplot(data=self.df, x='T2M_RANGE', y='WS2M', ax=ax)
+        plt.title('Daily temperature range vs Mean daily wind speed at 2 meters')
+        plt.show()
+    
+
+    def distribution_analysis(self):
+        fig, ax=plt.subplots(figsize=(10,6))
+        sns.histplot(data=self.df['PRECTOTCORR'], ax=ax, kde=True)
+        plt.title('The distribution of total daily precipitation')
+        plt.show()
+        skew=self.df['PRECTOTCORR'].skew()
+        if skew > 1:
+            print('The distribution of total daily precipitation is strongly right-skewed. the shape would be long right tail, bulk on the left')
+        elif skew < -1:
+            print('The distribution of total daily precipitation is strongly left-skewed. the shape would be bulk on the right, tail to the left')
+        elif -0.5 < skew < 0.5:
+            print('the distribution of total daily precipitation is fairly symmetric, Bell curve')
+        else:
+            print('The distribution of total daily precipitation is symmetric and normal. the shape would be bell-shaped, tails similar')
+
+        # bubble
+        fig, ax=plt.subplots(figsize=(10,6))
+        sns.scatterplot(
+            data=self.df, 
+            x='T2M', 
+            y='RH2M', 
+            size='PRECTOTCORR',   
+            palette='viridis',
+            sizes=(0, 80),  
+            alpha=0.7,        
+            edgecolor='black'
+        )
+        plt.show()
+
+
+
+       
+
 
     def run(self):
         self.load_data()
         self.specific_country()
         self.date_parser()
         self.data_quality()
-        self.distributions()
+        #self.distributions()
         self.check_outliers()
         print(f'total missing values {self.df.isna().sum()}')
         self.plotting_average_monthly_T2M()
-    
+        self.monthly_total_precipitation()
+        self.correlation_and_relationship()
+        self.distribution_analysis()
+
+        
     
     
