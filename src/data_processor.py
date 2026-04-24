@@ -40,7 +40,7 @@ class Country_Eda:
         else:
             percen=(nan_df/self.df.size) * 100
             print(f'The amount of missing data is {percen}%\n')
-        print('-------------------------------------------------')
+        print('-------------------------------------------------\n\n')
    
 
     def check_outliers(self, threshold=3):
@@ -52,7 +52,7 @@ class Country_Eda:
         outliers=self.df[outlier_indices]
         nan_df=self.df.isna().sum().sum()
         if nan_df == 0:
-            print('There is no missing Data')
+            pass
         else:
             percen=(nan_df/self.df.size) * 100
             print(f'The amount of missing data after outliers is {percen}%\n')
