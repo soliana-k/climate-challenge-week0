@@ -31,15 +31,37 @@ class Country_Eda:
         print('________date parsed successfully & month extracted succesfully______\n\n')
     
     def data_quality(self):
-        self.df=self.df.drop_duplicates()
-        self.df=self.df.replace(-999, np.nan)
-        nan_df=self.df.isna().sum().sum()
-        print('-------------- missing data check ---------------')
-        if nan_df == 0:
-            print('There is no missing Data')
+        print(f'--------------Data Quality Report for {self.name.capitalize()}-----------')
+        print("\n--- Data Information ---\n")
+        print(self.df.info())
+        
+        dup_count=self.df.duplicated().sum()
+        if dup_count > 0:
+            self.df=self.df.drop_duplicates()
+            print(f'Found and dropped {dup_count} duplicates')
         else:
-            percen=(nan_df/self.df.size) * 100
-            print(f'The amount of missing data is {percen}%\n')
+            print('Duplicates: no duplicates found')
+        self.df=self.df.replace(-999, np.nan)
+        print('Replaced all -999 occurrences with NaN.')
+        
+        print('\n-------------- missing data check ---------------\n')
+       
+        null_counts = self.df.isna().sum()
+        null_perc = (null_counts / len(self.df)) * 100
+        
+        print(null_perc[null_perc > 0] if null_perc.sum() > 0 else "no missing values detected.")
+
+        too_nulls = null_perc[null_perc > 5]
+        if not too_nulls.empty:
+            for col, val in too_nulls.items():
+                print(f"aolumn '{col}' has {val:.2f}% missing data. this may affect seasonal analysis.")
+        else:
+            print("all columns have < 5% missing data. good for analysis.")
+        
+        print("\n--- Summary Statistics ---\n")
+        stats_summary = self.df.describe()
+        print(stats_summary) 
+
         print('-------------------------------------------------\n\n')
    
 
@@ -50,25 +72,31 @@ class Country_Eda:
 
         outlier_indices=(norm_z_score>threshold).any(axis=1)
         outliers=self.df[outlier_indices]
-        nan_df=self.df.isna().sum().sum()
-        if nan_df == 0:
-            pass
-        else:
-            percen=(nan_df/self.df.size) * 100
-            print(f'The amount of missing data after outliers is {percen}%\n')
         perc=(len(outliers)/len(self.df)) * 100
-        print('------------ Outliers Report-------------------')
+        
+        print('------------ Outliers Report-------------------\n')
         if perc < 1:
             reasoning = "Clean Data: Minimal outliers detected. Retaining all points."
         elif perc < 7:
             reasoning = f"Natural Variability: {perc:.2f}% outliers is expected in climate data representing extreme weather events (storms/heatwaves). Decision: RETAIN for analysis."
         else:
             reasoning = "High Volatility: Significant outliers detected. Suggests sensor noise or extreme climate shifts. Decision: INSPECT/CAP."
-            
-        print(f"REASONING: {reasoning}\n")
 
-        print(f'total rows flagged as outliers {len(outliers)} and the percentage is {perc}%')
-        print('-------------------------------------------------')
+        print(f'total rows flagged as outliers {len(outliers)} and the percentage is {perc}%\n')  
+
+        print(f"REASONING: {reasoning}\n")
+        print('------------- Missing Value Handling---------------')
+        initial=len(self.df)
+        min_threshold = int(len(self.df.columns) * 0.7)
+        self.df=self.df.dropna(thresh=min_threshold)
+        dropped=initial - len(self.df)
+        if dropped > 0:
+            print(f"dropped {dropped} rows because they were more than 30% empty.")
+        
+        self.df[cols] = self.df[cols].ffill()
+        print("applied ffill to remaining missing weather variables.")
+        print('-------------------------------------------------\n')
+
 
 
     def plotting_average_monthly_T2M(self):
@@ -108,7 +136,7 @@ class Country_Eda:
 
         ax.xaxis.set_major_locator(mdates.YearLocator()) 
         ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
-        plt.title(f'Temperature Trends - {self.name.capitalize()} (2015–2026)', fontsize=14)
+        plt.title(f'Temperature Trends - {self.name.capitalize()} (2015–2026)\n', fontsize=14)
         plt.ylabel('Temperature (°C)')
         plt.legend()
         plt.show()
@@ -197,8 +225,6 @@ class Country_Eda:
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
         sns.histplot(self.df['PRECTOTCORR'], kde=True, ax=ax1, color='blue')
         ax1.set_title(f'Original Distribution (Skew: {skew:.2f})')
-
-        
         
         if skew > 1:
             print('The distribution of total daily precipitation is strongly right-skewed. the shape would be long right tail, bulk on the left')
@@ -223,9 +249,10 @@ class Country_Eda:
             data=self.df, 
             x='T2M', 
             y='RH2M', 
-            size='PRECTOTCORR',   
+            size='PRECTOTCORR', 
+            hue= 'PRECTOTCORR', 
             palette='viridis',
-            sizes=(0, 80),  
+            sizes=(20, 500),  
             alpha=0.7,        
             edgecolor='black'
         )
