@@ -109,10 +109,24 @@ climate-challenge-week0/
 │   └── workflows/
 │       └── ci.yml
 │
+├── notebooks/
+|   └── compare_countries.ipynb
+|   └── ethiopia_eda.ipynb
+|   └── kenya_eda.ipynb
+|   └── nigeria_eda.ipynb
+|   └── sudan_eda.ipynb
+|   └── tanzania_eda.ipynb
+|
+|
+├── src/
+|   └── __init__.py
+|   └── data_processor.py
+|
+|   
 ├── requirements.txt
 ├── README.md
 ├── .gitignore
-└── venv/   (ignored)
+└── 
 ```
 
 ---
@@ -127,5 +141,5 @@ climate-challenge-week0/
 
 ## Author
 
-Your Name
-Climate Challenge Participant
+Kalkidan Kassahun
+
