@@ -14,7 +14,10 @@ class Country_Eda:
        self.df=None
         
     def load_data(self):
-        self.df=pd.read_csv(f'../csv/{self.name}.csv')
+        base_path = os.path.dirname(os.path.abspath(__file__))
+        file_path = os.path.join(base_path, '..', 'csv', f'{self.name}.csv')
+    
+        self.df = pd.read_csv(file_path)
         print('_____ Data Loaded Successfully________\n\n')
 
 
