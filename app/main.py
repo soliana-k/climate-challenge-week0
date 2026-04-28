@@ -13,19 +13,34 @@ st.set_page_config(page_title="COP32 Climate Dashboard", layout="wide")
 @st.cache_data
 def get_combined_data(countries):
     """
-    Uses your modular Country_Eda class to load and clean 
-    multiple countries, then merges them for comparison.
+    Fetches data from Google Drive URLs stored in secrets.toml,
+    then uses Country_Eda for processing.
     """
     combined_list = []
     for name in countries:
+       
         eda = Country_Eda(name.lower())
         
-        eda.load_data() 
-        eda.specific_country()
-        eda.date_parser()
-       
-        eda.check_outliers() 
-        combined_list.append(eda.df)
+        secret_key = f"{name.upper()}_DATA"
+        
+        try:
+            data_url = st.secrets[secret_key]
+           
+            eda.df = pd.read_csv(data_url)
+            
+            
+            eda.specific_country()
+            eda.date_parser()
+            eda.check_outliers() 
+            combined_list.append(eda.df)
+            
+        except KeyError:
+            st.error(f"Secret key '{secret_key}' not found in Streamlit Secrets.")
+            continue
+        except Exception as e:
+            st.error(f"Error loading {name}: {e}")
+            continue
+            
     return pd.concat(combined_list, ignore_index=True)
 
 def main():
