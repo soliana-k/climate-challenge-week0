@@ -14,10 +14,20 @@ class Country_Eda:
        self.df=None
         
     def load_data(self):
-        base_path = os.path.dirname(os.path.abspath(__file__))
-        file_path = os.path.join(base_path, '..', 'csv', f'{self.name}.csv')
+        current_dir = os.path.dirname(os.path.abspath(__file__))
     
+    # 2. Move up one level to the root, then into the 'csv' folder
+    # This creates /mount/src/climate-challenge-week0/csv/ethiopia.csv
+        file_path = os.path.join(current_dir, '..', 'csv', f'{self.name}.csv')
+    
+    # 3. Standardize the path for the operating system
+        file_path = os.path.normpath(file_path)
+    
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"Could not find the file at: {file_path}")
+
         self.df = pd.read_csv(file_path)
+        print(f'_____ Data Loaded Successfully from {file_path} ________\n\n')
         print('_____ Data Loaded Successfully________\n\n')
 
 
