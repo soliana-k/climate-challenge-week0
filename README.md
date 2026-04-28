@@ -72,6 +72,21 @@ pip install -r requirements.txt
 All necessary libraries will be installed automatically.
 
 ---
+## Streamlit Dashboard Manual
+This project includes an interactive dashboard for regional climate comparison.
+**🔗 Live Link:** [African Climate Trend Analysis Dashboard](https://climate-challenge-week0-kvstbtquvq4fyd7jazy9ga.streamlit.app/)
+
+## Running the App Locally
+- Ensure your virtual environment is active.
+- Ensure you have a `.streamlit/secrets.toml` file with the required data URLs.
+
+Run the following command:
+
+```bash
+streamlit run app/main.py
+```
+Deployment
+The dashboard is configured for deployment on Streamlit Cloud. Sensitive data locations (Google Drive URLs) are managed via Streamlit Secrets to ensure security and repository cleanliness.
 
 ## Reproducing the Environment
 
