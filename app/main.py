@@ -53,7 +53,7 @@ def main():
     selected_countries = st.sidebar.multiselect(
         "Compare Countries", 
         options=available_countries, 
-        default=["Ethiopia", "Sudan"]
+        default=["Ethiopia"]
     )
 
     year_range = st.sidebar.slider(
