@@ -124,6 +124,10 @@ climate-challenge-week0/
 │   └── workflows/
 │       └── ci.yml
 │
+├── app/
+│   └── main.py
+|
+|
 ├── notebooks/
 |   └── compare_countries.ipynb
 |   └── ethiopia_eda.ipynb
